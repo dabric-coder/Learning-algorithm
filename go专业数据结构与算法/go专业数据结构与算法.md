@@ -2,7 +2,7 @@
 
 线性表是具有n个**相同类型元素**的有限**序列**（n >=0）
 
-![image-20200427165545369](C:\Users\Dabric\AppData\Roaming\Typora\typora-user-images\image-20200427165545369.png)
+![image-20200427165545369](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20200427165545369.png)
 
 > 其中`a1`是首节点（首元素），`an`是尾节点（尾元素）；
 >
@@ -26,7 +26,7 @@ var array [3]int = [3]int{11, 12, 13}
 
 其在内存存储的示意图如下所示：
 
-![image-20200427171948500](C:\Users\Dabric\AppData\Roaming\Typora\typora-user-images\image-20200427171948500.png)
+![image-20200427171948500](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20200427171948500.png)
 
 在很多编程语言中，数组都有个致命的缺点：**无法动态修改容量**，go语言中的数组也不例外，在实际开发中，更希望数组的容量是可以动态改变的。
 
@@ -74,7 +74,7 @@ type ArrayList struct {
 
 >  `ArrayList`的结构示意图如下：
 >
-> ![image-20200427212823333](C:\Users\Dabric\AppData\Roaming\Typora\typora-user-images\image-20200427212823333.png)
+> ![image-20200427212823333](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20200427212823333.png)
 
 ### 1.1.4 ArrayList实现List接口
 
@@ -300,7 +300,7 @@ func main() {
 
 栈以及入栈出栈操作的示意图如下：
 
-![image-20200429213230289](C:\Users\Dabric\AppData\Roaming\Typora\typora-user-images\image-20200429213230289.png)
+![image-20200429213230289](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20200429213230289.png)
 
 ### 1.2.2 栈的接口设计以及数组栈结构设计
 
@@ -776,7 +776,7 @@ func GetAll1(path string, files []string) ([]string, error) {
 
 队列的示意图如下：
 
-![image-20200502230953358](C:\Users\Dabric\AppData\Roaming\Typora\typora-user-images\image-20200502230953358.png)
+![image-20200502230953358](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20200502230953358.png)
 
 ### 1.3.2 队列的接口以及数组队列结构设计
 
