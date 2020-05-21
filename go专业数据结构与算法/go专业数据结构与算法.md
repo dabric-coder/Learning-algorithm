@@ -2,7 +2,7 @@
 
 线性表是具有n个**相同类型元素**的有限**序列**（n >=0）
 
-![image-20200427165545369](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20200427165545369.png)
+![image-20200427165545369](..\picture\image-20200427165545369.png)
 
 > 其中`a1`是首节点（首元素），`an`是尾节点（尾元素）；
 >
@@ -26,7 +26,7 @@ var array [3]int = [3]int{11, 12, 13}
 
 其在内存存储的示意图如下所示：
 
-![image-20200427171948500](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20200427171948500.png)
+![image-20200427171948500](..\picture\image-20200427171948500.png)
 
 在很多编程语言中，数组都有个致命的缺点：**无法动态修改容量**，go语言中的数组也不例外，在实际开发中，更希望数组的容量是可以动态改变的。
 
@@ -74,7 +74,7 @@ type ArrayList struct {
 
 >  `ArrayList`的结构示意图如下：
 >
-> ![image-20200427212823333](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20200427212823333.png)
+> ![image-20200427212823333](..\picture\image-20200427212823333.png)
 
 ### 1.1.4 ArrayList实现List接口
 
@@ -300,7 +300,7 @@ func main() {
 
 栈以及入栈出栈操作的示意图如下：
 
-![image-20200429213230289](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20200429213230289.png)
+![image-20200429213230289](..\picture\image-20200429213230289.png)
 
 ### 1.2.2 栈的接口设计以及数组栈结构设计
 
@@ -776,7 +776,7 @@ func GetAll1(path string, files []string) ([]string, error) {
 
 队列的示意图如下：
 
-![image-20200502230953358](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20200502230953358.png)
+![image-20200502230953358](..\picture\image-20200502230953358.png)
 
 ### 1.3.2 队列的接口以及数组队列结构设计
 
@@ -1187,6 +1187,372 @@ func main() {
 	fmt.Println(myQueue.Dequeue())
 	fmt.Println(myQueue.Dequeue())
 	fmt.Println(myQueue.Dequeue())
+}
+```
+
+# 堆的实现
+
+## 1 为什么要需要堆
+
+在介绍堆之前，我们先了解一下堆这个结构能干什么，以及为什么需要堆这个结构。下面我们看如下需求：
+
+> 设计一种数据结构，用来存放整数，要求提供3个接口：
+>
+> * 添加元素
+> * 获取最大值
+> * 删除最大值
+
+![image-20200520165911581](..\picture\image-20200520165911581.png)
+
+如上表所示，列举了实现上面需求可以使用的数据结构，以及每个数据结构实现3个接口的时间复杂度。那么经过分析，这几种数据结构，都有其优点与弊端。于是，我们就在想有没有更优的数据结构？
+
+堆这个结构在实现上面需求的3个接口时能够达到如下时间复杂度：
+
+![image-20200520170933296](..\picture\image-20200520170933296.png)
+
+堆结构在解决Top K问题上很有用，所谓的Top K问题就是从海量数据中 找出前K个数据，比如：从100万个整数中找出最大的100个整数。
+
+## 2 堆的介绍
+
+堆（Heap）也是一种树状的数据结构（不要和内存模型中的“堆空间”混淆），常见堆的实现有：
+
+> 二叉堆（Binary Heap，完全二叉堆）
+>
+> 多叉堆（D-heap、D-ary Heap）
+>
+> 索引堆（Index Heap）
+>
+> 二项堆（Binomial Heap）
+>
+> 斐波那契堆（Fibonacci Heap）
+>
+> 左倾堆（Leftist Heap，左式堆）
+>
+> 斜堆（Skew Heap)
+
+### 2.1 堆的性质
+
+堆的一个重要性质：任意结点的值总是**大于等于**或**小于等于**子节点的值：
+
+> 如果任意节点的值总是大于等于子节点的值，称为：最大堆、大根堆、大顶堆；
+>
+> 如果任意节点的值总是小于等于子节点的值，称为：最小堆、小根堆、小顶堆。
+
+所以我们可以看出，堆中的元素必须具备可比较性。
+
+在此，主要介绍二叉堆的实现。
+
+## 3 二叉堆
+
+二叉堆的逻辑结构就是一棵完全二叉数，所以也叫完全二叉堆。鉴于完全二叉树的一些特性，二叉堆的底层（物理结构）一般用数组实现即可。
+
+那么对于一个数组，在逻辑上怎么能将其实现成二叉树呢？来看下面二叉树中的节点与数组的索引对应关系：
+
+![image-20200520175023130](..\picture\image-20200520175023130.png)
+
+> 索引`i`的规律（n是元素数量）
+>
+> 如果`i=0`，为根节点；
+>
+> 如果`i>0`，其父节点的索引为`floor((i-1)/2)`
+>
+> 
+>
+> 如果`2i+1<=n-1`，其左子节点的索引为`2i+1`
+>
+> 如果`2i+1 > n-1`，其无左子节点
+>
+> 
+>
+> 如果`2i+2<=n-1`，其右子节点的索引为`2i+1`
+>
+> 如果`2i+2>n-1`，其无右子节点
+
+### 3.1 堆的基本接口设计
+
+```go
+type Heap interface {
+    length() int  // 元素的数量
+    isEmpty() bool  // 是否为空
+    clear()  // 清空
+    add(data interface{})  // 添加元素
+    get() interface{}  // 获得堆顶元素
+    remove() interface{}  // 删除堆顶元素
+    replace(data interface{})  // 删除堆顶元素的同时插入一个新元素
+}
+```
+
+二叉堆中`siftUP`和`siftDown`是非常关键的两个操作，下面分别在堆中添加元素和堆中删除元素的功能实现过程中介绍这两个操作。
+
+### 3.2 构建二叉堆结构
+
+```go
+type Comparator func(i, j interface{}) int
+
+
+type BinaryHeap struct {
+	data []interface{}  // 数据存储结构
+ 	size int  // 堆的大小
+	comparator Comparator  // 比较器
+}
+```
+
+### 3.3 最大堆 - 添加
+
+最大堆中添加一个元素的示意图如下：
+
+![image-20200521151156881](..\picture\image-20200521151156881.png)
+
+> 最大堆添加一个元素是在最大堆的基础上给底层数组的末尾添加一个元素，然后将二叉树经过上虑操作`siftUp`，调成最大堆：
+>
+> 循环执行以下操作：
+>
+> 如果node > 父节点，与父节点交换位置；
+>
+> 如果node <= 父节点，或者node没有父节点，退出循环。
+>
+> 该过程的时间复杂度为**O(logn)**
+
+代码示例：
+
+```go
+func (BH *BinaryHeap) add(data interface{}) {
+	BH.data = append(BH.data, data)
+	BH.size++
+	BH.siftUp(BH.size-1)
+}
+
+func (BH *BinaryHeap) siftUp(index int) {
+	for BH.comparator(BH.data[index], BH.data[(index-1)/2]) {
+		BH.data[index], BH.data[(index-1)/2] = BH.data[(index-1)/2], BH.data[index]
+		index = (index-1) /2
+	}
+}
+```
+
+交换位置的优化：
+
+将新添加节点备份，确定最终位置才摆放进去
+
+![image-20200521153144009](..\picture\image-20200521153144009.png)
+
+> 仅从交换位置的代码角度来看
+>
+> 可以由大概`3*O(logn)`的时间复杂度优化到`1*O(logn)+1`
+
+代码示例：
+
+```go
+func (BH *BinaryHeap) siftUp(index int) {
+    data := BH.data[index]
+    for index > 0 {
+        parentIndex := (index-1) >> 1
+        parent := BH.data[parentIndex]
+        
+        if BH.comparator(data, parent) <= 0 {  // 如果当前节点的值小于等于父节点的，提前退出循环
+            break
+        }
+        BH[index] = parent
+        index = parentIndex
+    }
+    BH.data[index] = data
+}
+```
+
+### 3.4 最大堆 - 删除
+
+最大堆中删除堆顶的元素的过程描述：
+
+> 将堆顶元素于堆中最后一个元素进行交换，堆的大小减1；
+>
+> 经过下滤`siftDown`的操作将，堆重新调成最大堆。
+
+下图是下虑过程的示意图：
+
+![image-20200521160530750](..\picture\image-20200521160530750.png)
+
+代码示例：
+
+```go
+func (BH *BinaryHeap) siftDown(index int) {
+	leftChild := index * 2 + 1
+	var largetst int
+
+	for leftChild < BH.size {
+
+		if leftChild+1 < BH.size && BH.comparator(BH.data[leftChild+1], BH.data[leftChild]) > 0 {
+			largetst = leftChild + 1
+		} else {
+			largetst = leftChild
+		}
+
+		if BH.comparator(BH.data[index], BH.data[largetst]) > 0 {
+			largetst = index
+		}
+
+		if index == largetst {
+			break
+		}
+
+		BH.data[index], BH.data[largetst] = BH.data[largetst], BH.data[index]
+		index = largetst
+		leftChild = index * 2 + 1
+	}
+}
+```
+
+### 3.5 最大堆 - 批量建堆（Heapify）
+
+给定一个数组，如何将该数组初始化一个最大堆，该过程就是批量建堆的过程。批量建堆，有两种方法：
+
+> * 自上而下的上滤
+> * 自下而上的下滤
+
+#### 3.5.1 自上而下的上滤
+
+> 假定数组中的第一个位置上的元素可以构成一个大根堆，从第二个元素开始遍历元素，向大根堆中添加一个元素进行一次上滤过程。
+
+代码实现：
+
+```go
+func (BH *BinaryHeap) heapify() {
+	for i := 1; i < BH.size; i++ {
+		BH.siftUp(i)
+	}
+}
+```
+
+#### 3.5.2 自下而上的下滤
+
+> 所有的叶子节点不用考虑，从最后一个非叶子节点开始遍历，当遍历一个节点时，进行下滤操作
+
+代码实现：
+
+```go
+func (BH *BinaryHeap) heapify() {
+	for i := BH.size / 2 - 1; i >= 0; i-- {
+		// 其中BH.size/2为完全二叉树中的第一个叶子节点
+		BH.siftDown(i)
+	}
+}
+
+```
+
+两种方法效率对比：
+
+> 自上而下的上滤：
+>
+> 其时间复杂度为`O(logn)`
+>
+> 自下而上的下滤：
+>
+> 其时间复杂度为`O(n)`
+
+## 4 二叉堆的应用
+
+前面提到过，利用二叉堆可以解决TopK的问题。如果使用排序算法进行全排序，需要`O(nlogn)`的时间复杂度；使用二叉堆来解决可以使用`O(nlogk)`的时间复杂度来解决。
+
+如下需求：
+
+> 从n个整数中，找出最大的前k个数（k远远小于n）
+
+思路：
+
+> 新建一个小顶堆；
+>
+> 扫描n个整数：
+>
+> ​	先将遍历到的前k个数放入堆中；
+>
+> ​	从第k+1个数开始，如果大于堆顶元素，就使用replace操作（删除堆顶元素，将第k+1个数添加到堆中
+>
+> 扫描完毕后，堆中剩下的就是最大的前k个数
+
+代码示例：
+
+```go
+package main
+
+import (
+	"fmt"
+)
+
+func smallestK(arr []int, k int) []int {
+
+	for i := 0; i < len(arr); i++ {
+		if i < k {
+			sitUp(arr, i)
+			//fmt.Println(arr)
+		} else if arr[i] < arr[0] {
+			replace(arr, arr[i], k)
+			//fmt.Println(arr)
+		}
+	}
+	fmt.Println(arr)
+	result := arr[:k]
+	fmt.Println(result)
+	return result
+}
+
+
+func sitUp(arr []int, index int) {
+
+	//for arr[index] > arr[(index-1)/2] {
+	//	arr[index], arr[(index-1)/2] = arr[(index-1)/2], arr[index]
+	//	index = (index-1)/2
+	//}
+	data := arr[index]
+	for index > 0 {
+		parentIndex := (index-1) >> 1
+		parent := arr[parentIndex]
+
+		if data <= parent {
+			break
+		}
+		arr[index] = parent
+		index = parentIndex
+	}
+	arr[index] = data
+
+}
+
+func siftDown(arr []int, index int, heapSize int) {
+	leftChild := index * 2 + 1
+	var largest int
+	for leftChild < heapSize {
+		if leftChild+1 < heapSize && arr[leftChild+1] > arr[leftChild] {
+			largest = leftChild+1
+		} else {
+			largest = leftChild
+		}
+
+		if arr[index] > arr[largest] {
+			index = largest
+		}
+
+		if index == largest {
+			break
+		}
+
+		arr[index], arr[largest] = arr[largest], arr[index]
+		index = largest
+		leftChild = index * 2 + 1
+	}
+
+}
+
+func replace(arr [] int, data int, k int) {
+	// 删除堆顶元素同时插入一个新元素
+	arr[0] = data
+	siftDown(arr, 0, k)
+}
+
+
+func main() {
+	arr := []int{1,3,5,7,2,4,6,8}
+	result := smallestK(arr, 4)
+	fmt.Println(result)
+	//
 }
 ```
 

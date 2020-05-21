@@ -1,14 +1,14 @@
-# 1 链表
 
-## 1.1 反转链表
 
-### 1.1.1 迭代实现
+# 206  反转链表
+
+##  迭代实现
 
 反转链表的核心思想在于，让每个节点指向前一个结点。
 
 注意：在操作链表时，如果前一个结点指向其他的结点，那么必须记住该结点。
 
-![image-20200312214659602](C:\Users\Dabric\AppData\Roaming\Typora\typora-user-images\image-20200312214659602.png)
+![image-20200312214659602](.\picture\image-20200312214659602.png)
 
 ```go
 func reverseList(head *ListNode) *ListNode {
@@ -24,7 +24,7 @@ func reverseList(head *ListNode) *ListNode {
 }
 ```
 
-### 1.1.2 递归实现
+## 递归实现
 
 解题思路
 链表是经典的递归定义的数据结构，链表相关的题目常常考察递归，翻转链表是其中的经典题目。
@@ -62,9 +62,9 @@ func reverseList(head *ListNode) *ListNode {
 }
 ```
 
-## 1.2 两两交换链表中的节点
+# 24. 两两交换链表中的节点
 
-![image-20200312233012678](C:\Users\Dabric\AppData\Roaming\Typora\typora-user-images\image-20200312233012678.png)
+![image-20200312233012678](.\picture\image-20200312233012678.png)
 
 代码实现：
 
@@ -90,9 +90,11 @@ func swapPairs(head *ListNode) *ListNode {
 }
 ```
 
+# 141 环形链表
+
+# 142 环形链表2
 
 
-## 1.3 判断一个链表是否有环
 
 # 283. 移动零
 
@@ -294,5 +296,28 @@ func twoSum2(nums []int, target int) []int {
 
 ![image-20200517082033949](.\picture\image-20200517082033949.png)
 
+【代码实现】
 
+```go
+func MergeSortedArray(nums1 []int, m int, nums2 []int, n int) {
+    for m > 0 && n > 0 {
+        if nums1[m-1] > nums2[n-1] {
+            nums1[m+n-1] = nums1[m-1]
+            m--
+        } else {
+            nums1[m+n-1] = nums2[n-1]
+            n--
+        }
+    }
+    
+    if m == 0 {
+        for i := 0; i < n; i++ {
+            nums1[i] = nums2[i]
+        }
+    }
+    
+}
+```
+
+# 138 复制带随机指针的链表
 
