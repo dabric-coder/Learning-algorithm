@@ -1190,6 +1190,1092 @@ func main() {
 }
 ```
 
+# 二叉树
+
+## 1 树（Tree）的基本概念
+
+树这种数据结构在计算机中的数据存储中使用的很广泛，比如说文件系统中的目录结构，就是以树结构展示或者说遍历的。
+
+如下图所示，这种有节点、根节点、父节点、子节点、兄弟节点的结构就是树结构，类似于倒着生长的树。当然，在一棵树中可以没有任何节点，称之为**空树**；一棵树中也可以只有一个节点，也就是只有根节点。
+
+![image-20200525212430966](..\picture\image-20200525212430966.png)
+
+* 节点的**度**（degree）：子树的个数
+* 树的**度**：所有节点度中的最大值
+* **叶子**节点（leaf）：度为0的节点
+* **非叶子**节点：度不为0的节点
+* **层数**（level）：根节点在第1层，根节点的子节点在第2层，以此类推
+* 节点的**深度**（depth）：从根节点到当前节点的唯一路径上的节点总数
+* 节点的**高度**（height）：从当前节点到最远叶子节点的路径上的节点总数
+* 树的**深度**：所有节点深度中的最大值
+* 树的**高度**：所有节点高度的最大值
+* 树的**深度**等于树的**高度**
+
+## 2 二叉树（Binary Tree）
+
+每个节点的**度**最大为2（最多拥有2棵子树），并且左子树和右子树是有顺序的的树称为**二叉树**。
+
+![image-20200525222520635](..\picture\image-20200525222520635.png)
+
+### 2.1 二叉树的性质
+
+* 非空二叉树的第i层，最多有`2的i-1次方`个节点，其中`i>=1`
+
+* 在高度为h的二叉树上最多有`2的h次方-1`个节点，其中`h>=1`
+
+* 对于任何一棵非空二叉树，如果叶子节点的个数为n0，度为2的节点个数为n2，则有：`n0 = n2 + 1`
+
+  > 假设度为 1 的节点个数为 n1 ，那么二叉树的节点总数 `n= n0 + n1 + n2 `
+  >
+  > 二叉树的边数` T = n1 + 2 * n2 = n – 1 = n0 + n1 + n2 - 1 `
+  >
+  > 因此`n0 = n2 + 1`
+
+### 2.2 真二叉树
+
+所有节点的度要么为0，要么为2的二叉树为真二叉树。
+
+![image-20200526075922573](..\picture\image-20200526075922573.png) ![image-20200526075957801](..\picture\image-20200526075957801.png)
+
+### 2.3 满二叉树
+
+满二叉树是最后一层是叶子节点，非叶子节点的两个孩子都全。如下图所示：
+
+![image-20200322002139254](..\picture\image-20200322002139254.png)
+
+
+
+满二叉树的性质：假设满二叉树的高度为h（h>=1），那么：
+
+* 第`i`层的节点数量：`2的i-1次方`
+* 叶子节点数量：`2的h-1次方`
+* 总结点数量n
+  * n=2的h次方-1
+  * h=log2(n+1)
+* 在同样高度的二叉树中，满二叉树的叶子节点数量最多、总结点数量最多
+* 满二叉树一定是真二叉树，真二叉树不一定是满二叉树
+
+
+
+### 2.4 完全二叉树（Complete Binary Tree）
+
+非满二叉树从左向右一次补齐形成的树为完全二叉树。如下图所示：
+
+![image-20200322002242802](..\picture\image-20200322002242802.png)
+
+
+
+#### 完全二叉树的性质
+
+* 度为1的节点只有左子树
+* 度为1的节点要么是1个要么是0个
+* 同样节点数量的二叉树，完全二叉树的高度最小
+* 假设完全二叉树的高度为h（h>=1），那么
+  * 至少有2的h-1次方个节点
+  * 最多有2的h次方-1个节点
+  * 总节点数为n
+  * `h=floor(log2n)+1`，floor是向下取整，另外，ceiling是向上取整
+* 一棵有n个节点的完全二叉树(n>0)，从上到下、从左到右对节点从0开始进行编号，对任意第i个节点
+  * 如果`i=0`，则该节点为根节点
+  * 如果`i>0`，它的父节点编号为`floor((i-1)/2)`
+  * 如果`2i+1<=n`，它的左子节点编号为`2i`
+  * 如果`2i+1>n`，它无左子节点
+  * 如果`2i+2<=n`，它的右子节点编号为`2i+2`
+  * 如果`2i+2>n`，它无右子节点
+
+## 3 二叉树结构的实现
+
+在介绍二叉树结构实现之前，我们先看如下需求：
+
+> 在n个动态的整数中搜索某个整数？（查看其是否存在）
+>
+> 方案一：
+>
+> ​	假设使用动态数组存放元素，从第0个位置开始遍历搜索，平均时间复杂度为`O(n)`
+>
+> 方案二：
+>
+> ​	可以维护一个有序的动态数组，然后使用二分搜索，最坏的时间复杂度为`O(logn)`
+>
+> ​	但是添加、删除的平均时间复杂度为`O(n)`
+>
+> 那么在以上的方案中还有没有更好的方案？
+>
+> 使用二叉搜索树，添加、删除、搜索的最坏时间复杂度均可优化至`O(logn)`
+
+### 3.1 二叉搜索树（Binary Search Tree）介绍
+
+二叉搜索树是二叉树的一种，是应用非常广泛的一种二叉树，简称`BST`。
+
+在二叉搜索树中任意一个节点的值都大于其左子树所有节点的值；任意一个节点的值都小于其右子树所有节点的值；任意一个节点的左右子树也是一棵二叉搜索树。
+
+二叉搜索树可以大大提高搜索数据的效率。下图为一棵二叉搜索树。
+
+![image-20200526085302324](..\picture\image-20200526085302324.png)
+
+### 3.2 二叉树的节点以及接口设计
+
+二叉树的节点设计：
+
+```go
+type Node struct {
+	data interface{}  // 存储的数据
+	left *Node   // 左孩子节点
+	right * Node  // 右孩子节点
+	parent *Node  // 父节点
+}
+```
+
+二叉树的接口设计：
+
+```go
+type BinaryTree interface {
+	Size() int   // 元素的数量
+	IsEmpty() bool  // 是否为空
+	Clear()  // 清空所有元素
+	Add(data interface{})  // 添加元素
+	Remove(data interface{})  // 删除元素
+	Contains(data interface{})  // 是否包含某元素
+}
+
+```
+
+二叉树结构的设计：
+
+```go
+type Comparable func (i, j interface{}) int
+
+type BST struct {
+	root *Node
+	size int
+	comparable Comparable  // 自定义比较方案
+}
+```
+
+### 3.3 添加结点
+
+在如下二叉搜索树中添加1、12的节点：
+
+![image-20200526092006204](..\picture\image-20200526092006204.png)
+
+> 添加步骤：
+>
+> 找到父节点parent；
+>
+> 创建新节点node；
+>
+> `parent.left = node`或者`parent.right = node`
+>
+> 当遇到值相等的元素建议覆盖旧的值。
+
+代码示例：
+
+```go
+func (bst *BST) Add(data interface{}) {
+	if bst.root == nil {
+		bst.root = &Node{data, nil, nil, nil}
+		bst.size++
+		return
+	}
+
+	parent := bst.root
+	node := bst.root
+	cmp := 0
+
+	for node != nil {
+		cmp = bst.comparable(data, node.data)
+		parent = node
+		if cmp > 0 {
+			node = node.right
+		} else if cmp < 0 {
+			node = node.left
+		} else {  // 相等时，将旧值覆盖
+			node.data = data
+			return
+		}
+	}
+
+	// 循环结束找到要添加位置的父节点，此时还要判断添加到父节点的左子树还是右子树
+	newNode := &Node{data, nil, nil, parent}
+	if cmp > 0 {
+		parent.right = newNode
+	} else {
+		parent.left = newNode
+	}
+	bst.size++
+}
+```
+
+### 3.4 二叉树的遍历
+
+遍历是数据结构中的常见操作，当然二叉树也不例外，遍历是将所有元素都访问一遍。线性数据结构的遍历比较简单一般有正序遍历和逆序遍历。
+
+对于二叉树来说，根据节点访问顺序的不同，二叉树的常见遍历方式有4种：
+
+* 前序遍历（Preorder Traversal）
+* 中序遍历（Inorder Traversal）
+* 后序遍历（Postorder Traversal）
+* 层序遍历（Level Order Traversal）
+
+#### 3.4.1 前、中、后序遍历
+
+##### 前序遍历
+
+前序遍历访问元素的顺序是：根节点、前序遍历左子树、前序遍历右子树（中左右）
+
+![image-20200526102540246](..\picture\image-20200526102540246.png)
+
+如上图所示，经过前序遍历所访问的节点为：
+
+```go
+7, 4, 2, 1, 3, 5, 9, 8, 11, 10, 12
+```
+
+##### 中序遍历
+
+中序遍历访问元素的顺序是：中序遍历左子树、根节点、中序遍历右子树（左中右）；也可以是右左中
+
+对于上图，经过中序遍历所访问的节点为：
+
+```go
+1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12
+```
+
+对于二叉搜索树进行中序遍历结果是升序或者降序
+
+##### 后序遍历
+
+后序遍历访问元素的顺序是：后序遍历左子树、后序遍历右子树、根节点（左右中）
+
+对于上图，经过后序遍历所访问的节点为：
+
+```go
+1, 3, 2, 5, 4, 8, 10, 12, 11, 9, 7
+```
+
+#### 3.4.2 前、中、后序遍历递归实现
+
+> 算法描述
+>
+> 先遍历整颗树的左子树，然后遍历整颗树的右子树；
+>
+> 此时整颗树上的节点会被访问三次；
+>
+> 在第一次访问所有节点为先序遍历；
+>
+> 在第二次访问所有节点为中序遍历；
+>
+> 在第三次访问所有节点为后序遍历。
+
+```go
+func Traversal(head Node) {
+    if head == nil {
+        return
+    }
+    Traversal(head.left)
+    Traversal(head.right)
+}
+```
+
+![image-20200330221338587](../picture/image-20200330221338587.png)
+
+代码示例：
+
+```go
+// 前序遍历
+func (bst *BST) PreOrderTraversal() {
+	if bst.root == nil {
+		return
+	}
+	bst.preOrderTraversal(bst.root)
+}
+
+func (bst *BST) preOrderTraversal(root *Node) {
+	if root == nil {
+		return
+	}
+	fmt.Printf("%v ", root.data)
+	bst.preOrderTraversal(root.left)
+	bst.preOrderTraversal(root.right)
+}
+
+// 中序遍历
+func (bst *BST) InOrderTraversal() {
+	if bst.root == nil {
+		return
+	}
+	bst.inOrderTraversal(bst.root)
+}
+
+func (bst *BST) inOrderTraversal(root *Node) {
+	if root == nil {
+		return
+	}
+	bst.inOrderTraversal(root.left)
+	fmt.Printf("%v ", root.data)
+	bst.inOrderTraversal(root.right)
+}
+
+// 后序遍历
+func (bst *BST) PostOrderTraversal() {
+	if bst.root == nil {
+		return
+	}
+	bst.postOrderTraversal(bst.root)
+}
+
+func (bst *BST) postOrderTraversal(root *Node) {
+	if root == nil {
+		return
+	}
+	bst.postOrderTraversal(root.left)
+	bst.postOrderTraversal(root.right)
+	fmt.Printf("%v ", root.data)
+}
+```
+
+#### 3.4.3 前、中、后序遍历非递归实现
+
+##### 前序遍历非递归实现
+
+> 整体算法：
+>
+> 将根节点压入栈，弹出栈顶节点时，先向栈中压入栈顶节点的右孩子，再压入左孩子。
+>
+> 算法描述：
+>
+> cur = root
+>
+> 如果当前节点不为空，将压入栈中
+>
+> 循环执行以下操作，直到栈为空
+>
+> ​	弹出栈顶节点top，进行访问
+>
+> ​	如果`top.right`不为空，将其压入栈中
+>
+> ​	如果`top.left`不为空，将其压入栈中
+
+```go
+// 前序遍历
+func (bst *BST) PreOrderTraversal() {
+	bst.preOrderTraversal(bst.root)
+}
+
+func (bst *BST) preOrderTraversal(root *Node) {
+	if root == nil {
+		return
+	}
+
+	s := StackArray.NewStack()
+	s.Push(root)
+
+	for !s.IsEmpty() {
+		cur := s.Pop().(*Node)
+		fmt.Printf("%v ", cur.data)
+		if cur.right != nil {
+			s.Push(cur.right)
+		}
+		if cur.left != nil {
+			s.Push(cur.left)
+		}
+	}
+}
+
+```
+
+##### 中序遍历非递归实现
+
+> 算法描述：
+>
+> 设置`cur = root`
+>
+> 如果栈不为空，或者cur不为空循环执行以下操作：
+>
+> ​	cur不为空，将cur压入栈中，cur往左
+>
+> ​	cur为空，弹出栈顶元素进行访问，cur往右
+
+```go
+// 中序遍历
+func (bst *BST) InOrderTraversal() {
+	bst.inOrderTraversal(bst.root)
+}
+
+func (bst *BST) inOrderTraversal(root *Node) {
+	if root == nil {
+		return
+	}
+
+	s := StackArray.NewStack()
+	cur := root
+
+	for cur != nil || !s.IsEmpty() {
+		if cur != nil {
+			s.Push(cur)
+			cur = cur.left
+		}else {
+			cur = s.Pop().(*Node)
+			fmt.Printf("%v ", cur.data)
+			cur = cur.right
+		}
+	}
+}
+```
+
+##### 后序遍历非递归实现
+
+> 算法描述：
+>
+> 使用两个栈实现：
+>
+> 借助两个栈stack1和stack2；
+>
+> 首先先实现中右左的遍历；
+>
+> 将stack1弹出的节点压入stack2中；
+>
+> 最后弹出stack2中的所有元素。
+>
+> 
+>
+> 使用一个栈实现：
+>
+> 将`root`压入栈
+>
+> 循环执行以下操作，直到栈为空：
+>
+> ​	如果栈顶节点是叶子节点 或者 上一次访问的节点是栈顶节点的子节点，则弹出栈顶节点，进行访问；
+>
+> ​	否则，将栈顶节点的`right、left`按顺序入栈
+
+代码示例：
+
+```go
+// 使用两个栈
+func posOrderUnrecur(head *Node) {
+	if head != nil {
+		s1 := arraystack.New()
+		s2 := arraystack.New()
+		s1.Push(head)
+		for !s1.Empty() {
+			cur, _ := s1.Pop()
+			s2.Push(cur)
+			if cur.(*Node).left != nil {
+				s1.Push(cur.(*Node).left)
+			}
+			if cur.(*Node).right != nil {
+				s1.Push(cur.(*Node).right)
+			}
+		}
+		for !s2.Empty() {
+			tmp, _ := s2.Pop()
+			fmt.Printf("%v ", tmp.(*Node).value)
+		}
+	}
+	fmt.Println()
+}
+
+// 使用一个栈
+func (bst *BST) PostOrderTraversal() {
+	bst.postOrderTraversal(bst.root)
+}
+
+func (bst *BST) postOrderTraversal(root *Node) {
+	if root == nil {
+		return
+	}
+    
+	s := StackArray.NewStack()
+
+	lastVisitNode := new(Node)
+	cur := root
+	s.Push(root)
+
+	// cur代表栈顶元素
+	for !s.IsEmpty() && cur != nil {
+		if (cur.left == nil && cur.right == nil) || (cur.left == lastVisitNode || cur.right == lastVisitNode) {
+			node := s.Pop().(*Node)
+			lastVisitNode = node
+			fmt.Printf("%v ", node.data)
+
+			if s.Peek() != nil {
+				cur = s.Peek().(*Node)
+			}
+		} else {
+			if cur.right != nil {
+				s.Push(cur.right)
+			}
+
+			if cur.left != nil {
+				s.Push(cur.left)
+			}
+			if s.Peek() != nil {
+				cur = s.Peek().(*Node)
+			}
+		}
+
+	}
+}
+```
+
+
+
+#### 3.4.4 层序遍历
+
+层序遍历访问元素的顺序是从上到下、从左到右一次访问每一个节点。
+
+![image-20200526102540246](..\picture\image-20200526102540246.png)
+
+对于上图使用层序遍历依次访问的节点为：
+
+```go
+7, 4, 9, 2, 5, 8, 11, 1, 3, 10, 12
+```
+
+实现思路：使用队列
+
+> 算法流程：
+>
+> 1. 将根节点入队
+> 2. 循环执行以下操作，直到队列为空
+>    1. 弹出队头节点A，进行访问
+>    2. 将A的左子节点入队
+>    3. 将A的右子节点入队
+
+代码示例：
+
+```go
+// 层序遍历
+func (bst *BST) LevelOrderTraversal() {
+	bst.levelOrderTraversal(bst.root)
+}
+
+func (bst *BST) levelOrderTraversal(root *Node) {
+   if root == nil {
+      return
+   }
+   q := Queue.NewQueue()
+   q.EnQueue(root)
+
+
+   for !q.IsEmpty() {
+      tmpNode := q.DeQueue()
+      node := tmpNode.(*Node)
+      fmt.Printf("%v ", node.data)
+
+      if node.left != nil {
+         q.EnQueue(node.left)
+      }
+
+      if node.right != nil{
+         q.EnQueue(node.right)
+      }
+   }
+
+}
+```
+
+#### 3.4.5 遍历的应用
+
+* 前序遍历：树状结构展示（注意左右子树的顺序）
+* 中序遍历：二叉搜索树的中序遍历按升序或降序处理节点
+* 后序遍历：适用于一些先子后父的操作
+* 层序遍历：计算二叉树的高度；判断一棵树是否为完全二叉树
+
+##### 打印二叉树
+
+```go
+// 打印二叉树
+func (bst *BST) String() string {
+	var buffer bytes.Buffer   // 保存字符串
+	bst.GenerateBSTString(bst.root, 0, "H", 17)
+	return buffer.String()
+}
+
+func (bst *BST) GenerateBSTString(root *Node, depth int, to string, length int) {
+	if root == nil {
+		return
+	}
+	bst.GenerateBSTString(root.right, depth + 1, "v", length)
+	val := to + strconv.Itoa(root.data.(int)) + to
+	lenM := len(val)
+	lenL := (length - lenM) / 2
+	lenR := length - lenM - lenL
+	val = bst.GenerateDepthString(lenL) + val + bst.GenerateDepthString(lenR)
+	fmt.Println(bst.GenerateDepthString(depth * length) + val)
+	bst.GenerateBSTString(root.left, depth+1, "^", length)
+}
+
+func (bst *BST) GenerateDepthString(depth int) string {
+	var buffer bytes.Buffer
+	for i := 0; i < depth; i++ {
+		buffer.WriteString(" ")
+	}
+	return buffer.String()
+}
+```
+
+### 3.5 删除节点
+
+在二叉树中，其节点无非分为三类：度为0的节点（叶子节点）、度为1的节点、度为2的节点。所以在删除二叉树上的某一个节点的问题就分为：删除叶子节点、删除度为1的节点、删除度为2的节点。
+
+#### 3.5.1 删除叶子节点
+
+如下图的二叉搜索树，假如要删除10这个节点该如何删除？
+
+![image-20200527112549981](..\picture\image-20200527112549981.png)
+
+> 首先，在二叉搜索树中先找到10这个节点
+>
+> 直接让3这个节点的父节点的左孩子指向空即可，也就是`node.parent.left = nil`
+
+假如现在要删除3这个节点该如何删除？
+
+>首先，在二叉搜索树中先找到3这个节点
+>
+>直接让3这个节点的父节点的右孩子指向空即可，也就是`node.parent.right = nil`
+
+另外，在二叉树当中只有一个根节点时，只需将`root = nil`
+
+删除叶子节点总结：
+
+> 首先找到要删除的节点
+>
+> 如果`node.parent == nil`，`root = nil`
+>
+> 如果`node == node.parent.left`，`node.parent.left = nil`
+>
+> 如果`node == node.parent.right`，`node.parent.right = nil`
+
+#### 3.5.2 删除度为1的节点
+
+删除度为1的节点的核心思想是用子节点替代原节点的位置，其中`child`是`node.left`或者是`node.right`。如下图所示，比如要删除节点4和节点9，该如何删除？
+
+![image-20200527113945373](..\picture\image-20200527113945373.png)
+
+> 如果node是左子节点：
+>
+> `child.parent = node.parent`
+>
+> `node.parent.left = child`
+>
+> 
+>
+> 如果node是右子节点：
+>
+> `child.parent = node.parent`
+>
+> `node.parent.right = child`
+>
+> 
+>
+> 如果node是根节点
+>
+> `root = child`
+>
+> `child.parent = nil`
+
+#### 3.5.3 删除度为2的节点
+
+删除二叉树上度为2的节点，那就必须找一个能够替换该节点的，并且还要保证二叉搜索树的性质，符合替换要删除的节点只能是该节点左子树上最大的数或者右子树上最小的数，也就是该节点的前驱或者后继。
+
+![image-20200527140822151](..\picture\image-20200527140822151.png)
+
+> 删除度为2的节点的步骤：
+>
+> 先用前驱或者后继节点的值覆盖原节点的值
+>
+> 然后删除相应的前驱或者后继节点。
+>
+> 注意：
+>
+> 如果一个节点的度为2，那么它的前驱、后继节点的度只可能是1和0
+
+#### 3.5.4 删除节点的代码实现
+
+```go
+// 带父节点指针的节点删除
+func (bst *BST) Remove(node *Node) {
+    if node == nil {
+        return
+    }
+    bst.size--
+    
+    if node.left != nil && node.right != nil {
+        // 要删除的节点的度为2
+        s := bst.Successor(node)
+        node.data = s.data
+        node = s
+    }
+    
+    // 此时node的度要么为1要么为0
+    var replacement *Node
+    if node.left != nil {
+        replacement = node.left
+    } else {
+        replacement = node.right
+    }
+    
+    if repalcement != nil {
+        // node的度为1
+        replacement.parent = node.parent
+        
+        if node.parent == nil {
+            // node是度为1的根节点
+            bst.root = replacement
+        } else if node == node.parent.left {
+            node.parent.left = replacement
+        } else {
+            node.parent.right = replacement
+        }
+        
+        
+    } else if node.parent == nil {
+        // node是叶子节点并且是根节点
+        bst.root = nil
+    } else {
+        // node是叶子但是不是根节点
+        if node == node.parent.left {
+            node.parent.left = nil
+        } else {
+            node.parent.right = nil
+        }
+    }
+    
+}
+```
+
+#### 3.5.5 递归删除节点
+
+
+
+
+
+## 4 二叉树相关问题
+
+### 4.1 翻转二叉树
+
+https://leetcode-cn.com/problems/invert-binary-tree/
+
+![image-20200526161116561](..\picture\image-20200526161116561.png)
+
+分别用递归、迭代（非递归）方式实现
+
+> 思路：从题目中的要求可以看出，需要堆每个节点的左右子树进行交换，在这可以想到使用二叉树的遍历，在遍历的过程中去交换左右子树。所以，之前所有的遍历都可以用来解决此问题。以前序遍历为示例：
+
+代码示例：
+
+```go
+/**
+ * Definition for a binary tree node.
+ * type TreeNode struct {
+ *     Val int
+ *     Left *TreeNode
+ *     Right *TreeNode
+ * }
+ */
+func invertTree(root *TreeNode) *TreeNode {
+    if root == nil {
+        return root
+    }
+
+    root.Left, root.Right = root.Right, root.Left
+    invertTree(root.Left)
+    invertTree(root.Right)
+    return root
+}
+```
+
+### 4.2 计算二叉树的高度
+
+#### 递归实现
+
+> 思路：
+>
+> 计算二叉树的高度，其实就是计算根节点的高度。
+>
+> 首先我们将问题泛化成求二叉树上任意节点的高度：
+>
+> ​	那么任意节点的高度就为其左右子树高度最高的高度加1
+>
+> 于是就有如下代码：
+
+```go
+func (bst *BST) Height() int {
+	return bst.height(bst.root)
+}
+
+func (bst *BST) height(node *Node) int {
+	if node == nil {
+		return 0
+	}
+	maxChildHeight := int(math.Max(float64(bst.height(node.left)), float64(bst.height(node.right))))
+	return  maxChildHeight + 1
+}
+```
+
+#### 非递归实现
+
+> 思路：
+>
+> 使用层序遍历。
+>
+> 在层序遍历的过程中，每当访问完一层的节点后，此时队列中长度就为二叉树下一层节点个数，当访问完一层的节点后高度加1。
+
+```go
+func (bst *BST) Height() int {
+	if bst.root == nil {
+		return 0
+	}
+
+	// 树的高度
+	height := 0
+	levelSize := 1  // 每一层节点个数
+
+	q := Queue.NewQueue()
+	q.EnQueue(bst.root)
+
+	for !q.IsEmpty() {
+
+		node := q.DeQueue().(*Node)
+		levelSize--
+
+		if node.left != nil {
+			q.EnQueue(node.left)
+		}
+
+		if node.right != nil {
+			q.EnQueue(node.right)
+		}
+
+		if levelSize == 0 {  // 意味着将要访问下一层的节点
+			levelSize = q.Size()
+			height++
+		}
+	}
+	return height
+}
+
+// 实现2
+func (bst *BST) Height() int {
+	if bst.root == nil {
+		return 0
+	}
+
+	// 树的高度
+	height := 0
+
+	q := Queue.NewQueue()
+	q.EnQueue(bst.root)
+
+	for !q.IsEmpty() {
+		levelSize := q.Size()  // 每层的节点数
+		for i := 0; i < levelSize; i++ {  
+			node := q.DeQueue().(*Node)
+			if node.left != nil {
+				q.EnQueue(node.left)
+			}
+
+			if node.right != nil {
+				q.EnQueue(node.right)
+			}
+
+			if levelSize == 0 {  // 意味着将要访问下一层的节点
+				levelSize = q.Size()
+				height++
+			}
+		}
+		height++
+	}
+	return height
+}
+```
+
+### 4.3 判断一棵树是否为完全二叉树
+
+完全二叉树的性质：一个节点有右孩子，必须得有左孩子；如果一个节点的左右孩子不全，则后面所有节点都是叶子节点。
+
+根据完全二叉树的性质有以下思路判断一棵树是否为完全二叉树：
+
+> 对二叉树进行层序遍历：
+>
+> 如果一个节点有右孩子没有左孩子，则不是
+>
+> 如果一个节点的左右孩子不全，那么后面遇到的所有节点必须都是叶子节点，否则一定不是完全二叉树
+>
+> 上面两种情况都没中，为完全二叉树
+
+```go
+func (bst *BST) isComplete() bool {
+	if bst.root == nil {
+		return false
+	}
+
+	q := Queue.NewQueue()
+	q.EnQueue(bst.root)
+
+	leaf := false
+
+	for !q.IsEmpty() {
+		node := q.DeQueue().(*Node)
+		if (leaf && (node.left != nil || node.right != nil)) || (node.left == nil && node.right != nil ) {
+			return false
+		}
+
+		if node.left != nil {
+			q.EnQueue(node.left)
+		}
+
+		if node.right != nil {
+			q.EnQueue(node.right)
+		} else {
+			leaf = true
+		}
+	}
+	return true
+}
+
+// 另一种写法
+func (bst *BST) isComplete() bool {
+	if bst.root == nil {
+		return false
+	}
+
+	q := Queue.NewQueue()
+	q.EnQueue(bst.root)
+
+	leaf := false
+
+	for !q.IsEmpty() {
+		node := q.DeQueue().(*Node)
+		if leaf && (node.left != nil || node.right != nil) {
+			return false
+		}	
+		if node.left != nil && node.right != nil {
+			q.EnQueue(node.left)
+			q.EnQueue(node.right)
+		} else if node.left == nil && node.right != nil {
+			return false
+		} else {
+			leaf = true
+		}
+	}
+	return true
+}
+```
+
+### 4.4 二叉树的前驱后继节点
+
+二叉树的前驱后继节点是经过中序遍历二叉树后所访问到的每个节点的前一个节点和后一个节点，如下图所示：
+
+![image-20200526102540246](..\picture\image-20200526102540246.png)
+
+中序遍历的结果为：
+
+```go
+1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12
+```
+
+比如说节点2的前驱节点为节点1，后继节点为节点3。那么如何使用程序找到某个节点的前驱或者后继节点？
+
+> 前驱节点算法描述：
+>
+> 对于二叉树中的任意一个节点：
+>
+> 如果有左子树，那么该节点的前驱节点为其左子树的最右节点；
+>
+> 如果没有左子树，往父节点一直找，直到当前节点是父节点的右孩子，那么前驱节点就为该当前节点的父节点。
+>
+> 
+>
+> 后继节点算法描述：
+>
+> 对于二叉树中的任意一个节点：
+>
+> 如果有右子树，那么该节点的前驱节点为其右子树的最左节点；
+>
+> 如果没有右子树，往父节点一直找，直到当前节点是父节点的左孩子，那么前驱节点就为该当前节点的父节点。
+
+代码实现：
+
+```go
+// 二叉树中的节点有一个指向parent的指针
+
+func (bst *BST) Predecessor(node *Node) *Node {
+    if node == nil {
+        return nil
+    }
+    p := node.left
+    
+    if p != nil {
+        for p != right {
+            p = p.right
+        }
+        return p
+    }
+    
+    for node.parent != nil && node == node.parent.left {
+        node = node.parent
+    }
+    return node.parent
+    
+}
+```
+
+另一种使用栈的方式实现的方法：
+
+```go
+func (bst *BST) PredecessorWithStack(node *Node) *Node {
+
+	// 判断node节点是否有左子树，如果有左子树找到左子树最右边的节点，就为node的前驱节点；
+	// 如果没有左子树有右子树，使用栈结构记录从root到node节点的路径
+	// 那么栈中存储的是node的父节点的父节点的父一直到root
+	// 往上找，一直找到当前节点是父节点的右孩子，那么该父节点为node的前驱节点
+
+	p := node.left
+
+	// 往下找
+	if p != nil {
+		for p.right != nil {
+			p = p.right
+		}
+		return p
+	}
+
+	// 往上找
+
+	cur := bst.root
+
+	myStack := make([]*Node, 0)
+
+	for cur != node {
+		myStack = append(myStack, cur)
+		if  bst.comparable(node.data, cur.data) > 0 {
+			cur = cur.right
+		} else {
+			cur = cur.left
+		}
+	}
+
+	for len(myStack) > 0 && myStack[len(myStack)-1].right != node {
+		node = myStack[len(myStack)-1]
+		myStack = myStack[:len(myStack)-1]
+	}
+
+	if len(myStack) > 0 {
+		return myStack[len(myStack)-1]
+	}
+	return nil
+
+}
+```
+
+
+
+
+
+
 # 堆的实现
 
 ## 1 为什么要需要堆
