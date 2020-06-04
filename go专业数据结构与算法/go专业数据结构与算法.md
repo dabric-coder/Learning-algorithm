@@ -2271,6 +2271,18 @@ func (bst *BST) PredecessorWithStack(node *Node) *Node {
 }
 ```
 
+递归方法实现：
+
+```go
+func (bst *BST) Precedessor(node *Node) *Node {  // 左子树的最右边
+    node = node.left
+    for node.right != nil {
+        node = node.right
+    }
+    return node
+}
+```
+
 
 
 
