@@ -2342,7 +2342,7 @@ func (bst *BST) Precedessor(node *Node) *Node {  // 左子树的最右边
 
 ## 3 二叉堆
 
-二叉堆的逻辑结构就是一棵完全二叉数，所以也叫完全二叉堆。鉴于完全二叉树的一些特性，二叉堆的底层（物理结构）一般用数组实现即可。
+二叉堆的逻辑结构就是一棵完全二叉树，所以也叫完全二叉堆。鉴于完全二叉树的一些特性，二叉堆的底层（物理结构）一般用数组实现即可。
 
 那么对于一个数组，在逻辑上怎么能将其实现成二叉树呢？来看下面二叉树中的节点与数组的索引对应关系：
 
@@ -2625,7 +2625,7 @@ func siftDown(arr []int, index int, heapSize int) {
 		}
 
 		if arr[index] > arr[largest] {
-			index = largest
+			largest = index
 		}
 
 		if index == largest {
